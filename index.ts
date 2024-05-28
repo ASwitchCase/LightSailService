@@ -4,15 +4,11 @@ import { UserAccountDynamoRepository } from "./src/Repositories/UserAccountDynam
 import express from 'express'
 import { UserController } from "./src/Controllers/UserController";
 import { RouteBuilder } from "./src/Routes/Api/RouteBuilder";
+import { Controllers } from "./src/Utils/Tools";
 
 const app = express()
 
-const builder  = new RouteBuilder(
-    new UserController(
-        new UserAccountDynamoRepository(
-            new DynamoDB({region:"us-east-1"}),"test_table")
-        )
-    )
+const builder  = new RouteBuilder(Controllers.DynamoDbUserController)
 
 app.use('/users',builder.mapUserRoutes())
 

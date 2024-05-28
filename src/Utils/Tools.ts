@@ -1,6 +1,9 @@
+import { DynamoDB } from "@aws-sdk/client-dynamodb"
+import { UserController } from "../Controllers/UserController"
 import { UserAccountModel } from "../Models/UserAccountModel"
+import { UserAccountDynamoRepository } from "../Repositories/UserAccountDynamoRepository"
 
-export const SETTINGS ={
+export const SETTINGS = {
     AddOns : {
         AutoSnapshot: 
             {
@@ -26,4 +29,8 @@ export const SETTINGS ={
             {Key:'Name', Value:username}
         ]
     },
+}
+
+export const Controllers = {
+    DynamoDbUserController : new UserController(new UserAccountDynamoRepository(new DynamoDB({region:"us-east-1"}),"test_table"))
 }
