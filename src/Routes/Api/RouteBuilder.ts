@@ -1,7 +1,7 @@
 import express, { Router } from 'express'
 import { UserController } from '../../Controllers/UserController'
 
-export class UserRouteBuilder {
+export class RouteBuilder {
     constructor(private userController : UserController){}
     mapUserRoutes() : Router{
         var router = express.Router()

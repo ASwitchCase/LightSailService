@@ -3,18 +3,18 @@ import { UserAccountDynamoRepository } from "./src/Repositories/UserAccountDynam
 
 import express from 'express'
 import { UserController } from "./src/Controllers/UserController";
-import { UserRouteBuilder } from "./src/Routes/Api/UserRouteEndpoints";
+import { RouteBuilder } from "./src/Routes/Api/RouteBuilder";
 
 const app = express()
 
-const users  = new UserRouteBuilder(
+const builder  = new RouteBuilder(
     new UserController(
         new UserAccountDynamoRepository(
             new DynamoDB({region:"us-east-1"}),"test_table")
         )
     )
 
-app.use('/users',users.mapUserRoutes())
+app.use('/users',builder.mapUserRoutes())
 
 app.listen(3000,() =>{
     console.log('listening...')
