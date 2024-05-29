@@ -1,17 +1,21 @@
-import { DynamoDB } from "@aws-sdk/client-dynamodb";
-import { UserAccountDynamoRepository } from "./src/Repositories/UserAccountDynamoRepository";
-
 import express from 'express'
-import { UserController } from "./src/Controllers/UserController";
 import { RouteBuilder } from "./src/Routes/Api/RouteBuilder";
 import { Controllers } from "./src/Utils/Tools";
 
+
 const app = express()
 
-const builder  = new RouteBuilder(Controllers.DynamoDbUserController)
+// Build api endpoints
+const builder = new RouteBuilder(
+    Controllers.DynamoDbUserController,
+    Controllers.DynamoDbDiskController
+)
 
+// Initalize routes
 app.use('/users',builder.mapUserRoutes())
+app.use('/disks',builder.mapDiskRoutes())
 
+// Start Server
 app.listen(3000,() =>{
     console.log('listening...')
 })

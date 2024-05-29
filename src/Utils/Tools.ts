@@ -1,7 +1,8 @@
 import { DynamoDB } from "@aws-sdk/client-dynamodb"
 import { UserController } from "../Controllers/UserController"
-import { UserAccountModel } from "../Models/UserAccountModel"
 import { UserAccountDynamoRepository } from "../Repositories/UserAccountDynamoRepository"
+import { DiskController } from "../Controllers/DiskController"
+import { DiskDynamoRepository } from "../Repositories/DiskDynamoRepository"
 
 export const SETTINGS = {
     AddOns : {
@@ -32,5 +33,14 @@ export const SETTINGS = {
 }
 
 export const Controllers = {
-    DynamoDbUserController : new UserController(new UserAccountDynamoRepository(new DynamoDB({region:"us-east-1"}),"test_table"))
+    DynamoDbUserController : new UserController(
+        new UserAccountDynamoRepository(
+            new DynamoDB({region:"us-east-1"})
+        )
+    ),
+    DynamoDbDiskController : new DiskController(
+        new DiskDynamoRepository(
+            new DynamoDB({region:"us-east-1"})
+        )
+    )
 }

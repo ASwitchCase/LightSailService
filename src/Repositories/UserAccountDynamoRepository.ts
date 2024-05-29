@@ -3,7 +3,10 @@ import { IUserAccountRepository } from "./IUserAccountRepository";
 import { UserAccountModel } from "../Models/UserAccountModel";
 
 export class UserAccountDynamoRepository implements IUserAccountRepository {
-    constructor(private db : DynamoDB,private table_name : string){}
+    private table_name : string 
+    constructor(private db : DynamoDB){
+        this.table_name = 'lightsail-lab-user-table'
+    }
 
     /**
      * 
