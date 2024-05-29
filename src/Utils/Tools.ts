@@ -3,6 +3,8 @@ import { UserController } from "../Controllers/UserController"
 import { UserAccountDynamoRepository } from "../Repositories/UserAccountDynamoRepository"
 import { DiskController } from "../Controllers/DiskController"
 import { DiskDynamoRepository } from "../Repositories/DiskDynamoRepository"
+import { LSInstanceController } from "../Controllers/LSInstanceController"
+import { LSInstanceDynamoRepository } from "../Repositories/LSInstanceDynamoRepository"
 
 export const SETTINGS = {
     AddOns : {
@@ -41,6 +43,11 @@ export const Controllers = {
     DynamoDbDiskController : new DiskController(
         new DiskDynamoRepository(
             new DynamoDB({region:"us-east-1"})
+        )
+    ),
+    DynamoDbInstanceController : new LSInstanceController(
+        new LSInstanceDynamoRepository(
+            new  DynamoDB({region:"us-east-1"})
         )
     )
 }
