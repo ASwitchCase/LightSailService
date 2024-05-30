@@ -1,35 +1,21 @@
 import express from 'express'
-import { RouteBuilder } from "./src/Routes/Api/RouteBuilder";
-import { Controllers } from "./src/Utils/Tools";
-import { UserAccountDynamoRepository } from './src/Repositories/UserAccountDynamoRepository';
-import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { RouteBuilder } from "./src/Utils/RouteBuilder";
+import { mapUserRoutes } from './src/Routes/Api/UserRoute';
+import { mapDiskRoutes } from './src/Routes/Api/DiskRoute';
+import { mapInstanceRoutes } from './src/Routes/Api/InstanceRoute';
 
 
 const app = express()
 app.use(express.json())
 
 // Build api endpoints
-const builder = new RouteBuilder(
-    Controllers.DynamoDbUserController,
-    Controllers.DynamoDbDiskController,
-    Controllers.DynamoDbInstanceController
-)
+const builder = new RouteBuilder()
+    .AddRoute((b) => mapUserRoutes(b))
+    .AddRoute((b) => mapDiskRoutes(b))
+    .AddRoute((b) => mapInstanceRoutes(b))
 
 // Initalize routes
-app.use('/users',builder.mapUserRoutes())
-app.use('/disks',builder.mapDiskRoutes())
-app.use('/instances',builder.mapInstanceRoutes())
-
-const r = new UserAccountDynamoRepository(new DynamoDB({region:"us-east-1"}))
-
-app.get('/',(req,res) =>{
-    res.send(r.addUser({
-        id: 'fgsfdgsdfgs',
-        username: 'test',
-        assigned_instance: 'sfsdfgzf',
-        assigned_disk: 'sdfsfsfdf'
-    }))
-})
+app.use('/',builder.router)
 
 // Start Server
 app.listen(3000,() =>{
