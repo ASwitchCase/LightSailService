@@ -1,20 +1,15 @@
-import { UserAccountModel } from "../Models/UserAccountModel";
 import { IUserAccountRepository } from "../Repositories/IUserAccountRepository";
+const {Request : Req, Response: Res} = require('express')
 
 export class UserController {
     constructor(private repo : IUserAccountRepository){}
 
-    async GetOne(id : string) : Promise<UserAccountModel>{
-        return await this.repo.getUser(id)
+    async GetOne(req : typeof Req, res : typeof Res) : Promise<void>{
+        res.json( await this.repo.getUser(req.params.id))
     }
 
-    async GetAll() : Promise<UserAccountModel[]>{
-        return await this.repo.getAllUsers()
+    async GetAll(req : typeof Req, res : typeof Res) : Promise<void>{
+        res.json( await this.repo.getAllUsers())
     }
 
-    test(){
-        return {
-            msg:'hello'
-        }
-    }
 }

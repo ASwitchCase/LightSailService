@@ -13,42 +13,24 @@ export class RouteBuilder {
 
     mapUserRoutes() : Router {
         var router = express.Router()
-
-        router.get('/',async (req,res) =>{
-            res.send(await this.userController.GetAll())
-        })
-
-        router.get('/:id',async (req,res) =>{
-            res.send(await this.userController.GetOne(req.params.id))
-        })
+        router.get('/',async (req,res) => await this.userController.GetAll(req,res))
+        router.get('/:id',async (req,res) => await this.userController.GetOne(req,res))
 
         return router
     }
 
     mapDiskRoutes() : Router {
         var router = express.Router()
-
-        router.get('/',async (req,res) =>{
-            res.send(await this.diskController.GetAll())
-        })
-
-        router.get('/:id',async (req,res) =>{
-            res.send(await this.diskController.GetOne(req.params.id))
-        })
+        router.get('/',async (req,res) => await this.diskController.GetAll(req,res))
+        router.get('/:id',async (req,res) => await this.diskController.GetOne(req,res))
 
         return router
     }
 
     mapInstanceRoutes() : Router {
         var router = express.Router()
-
-        router.get('/',async (req,res) =>{
-            res.send(await this.instanceController.GetAll())
-        })
-
-        router.get('/:id', async (req,res) =>{
-            res.send(await this.instanceController.GetOne(req.params.id))
-        })
+        router.get('/',async (req,res) => await this.instanceController.GetAll(req,res))
+        router.get('/:id',async (req,res) => await this.instanceController.GetOne(req,res))
 
         return router
     }
