@@ -23,6 +23,7 @@ export class LSInstanceDynamoRepository implements ILSInstanceRepository{
 
         return {
             id : res.Item?.id.S!,
+            name : res.Item?.name.S!,
             zone : res.Item?.zone.S!,
             bundle_id : res.Item?.bundle_id.S!,
             blueprint_id : res.Item?.blueprint_id.S!
@@ -43,6 +44,7 @@ export class LSInstanceDynamoRepository implements ILSInstanceRepository{
         scan.Items?.forEach(item =>{
             res.push({
                 id : item?.id.S!,
+                name: item?.name.S!,
                 zone : item?.zone.S!,
                 bundle_id : item?.bundle_id.S!,
                 blueprint_id : item?.blueprint_id.S!
@@ -61,6 +63,7 @@ export class LSInstanceDynamoRepository implements ILSInstanceRepository{
             TableName : this.table_name,
             Item : {
                 id : {S:instance.id},
+                name: {S:instance.name},
                 zone : {S:instance.zone},
                 bundle_id :{S:instance.bundle_id},
                 blueprint_id :{S:instance.blueprint_id}
