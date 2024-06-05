@@ -19,8 +19,17 @@ export class LightSailService {
             bundleId:instance.bundle_id,
             blueprintId:instance.blueprint_id,
             addOns:[
-               SETTINGS.AddOns.autoSnapShot,
-               SETTINGS.AddOns.costControlRules
+               {
+                    addOnType: "AutoSnapshot",
+                    autoSnapshotAddOnRequest: {
+                        snapshotTimeOfDay: "05:00"
+                    },
+                    stopInstanceOnIdleRequest: {
+                        duration: "15",
+                        threshold: "10"
+                    }
+               },
+               
             ]
         })
 
