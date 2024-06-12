@@ -1,7 +1,8 @@
-import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput } from "@aws-sdk/client-lightsail"; // ES Modules import
+import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState } from "@aws-sdk/client-lightsail"; // ES Modules import
 import { InstanceModel } from "../Models/InstanceModel";
 import { SETTINGS } from "../Utils/Tools";
 import { DiskModel } from "../Models/DiskModel";
+import { sleep } from "../Utils/Sleep";
 
 export class LightSailService {
     constructor(private client : LightsailClient){}
@@ -20,10 +21,7 @@ export class LightSailService {
             blueprintId:instance.blueprint_id,
             addOns:[
                {
-                    addOnType: "AutoSnapshot",
-                    autoSnapshotAddOnRequest: {
-                        snapshotTimeOfDay: "05:00"
-                    },
+                    addOnType: "StopInstanceOnIdle",
                     stopInstanceOnIdleRequest: {
                         duration: "15",
                         threshold: "10"
@@ -41,14 +39,15 @@ export class LightSailService {
      * @param disk 
      * @returns Command Output
      */
-    async createDisk(disk : DiskModel) : Promise<CreateDiskCommandOutput>{
+    async createDisk(disk : DiskModel) : Promise<void>{
         const command = new CreateDiskCommand({
             diskName:disk.name,
             availabilityZone:disk.availability_zone,
             sizeInGb:disk.block_size
         })
 
-        return await this.client.send(command)
+        const res = await this.client.send(command)
+        
     }
 
     /**
@@ -57,14 +56,31 @@ export class LightSailService {
      * @param instanceName 
      * @returns Command Output
      */
-    async attachDisk(diskName : string, instanceName : string) : Promise<AttachDiskCommandOutput>{
+    async attachDisk(diskName : string, instanceName : string) : Promise<void>{
         const command = new AttachDiskCommand({
             diskName:diskName,
             diskPath:"/dev/xvdf",
             instanceName:instanceName
         })
 
-        return await this.client.send(command)
+        await this.client.send(command)
         
+    }
+
+    async waitForInstanceRunning(name : string){
+        const command = new GetInstanceCommand({
+            instanceName:name
+        })
+
+        while(true){
+            const res = await this.client.send(command)
+                .then(data =>{
+                    console.log(data.instance?.state?.name)
+                    if(data.instance?.state?.name === "running"){
+                        return
+                    }
+                })
+            sleep(10000)
+        }
     }
 }

@@ -3,9 +3,9 @@ import { InstanceModel } from "../Models/InstanceModel";
 import { IDiskRepository } from "../Repositories/IDiskRepository";
 import { ILSInstanceRepository } from "../Repositories/ILSInstanceRepository";
 import { IUserAccountRepository } from "../Repositories/IUserAccountRepository";
-import { UserAccountDynamoRepository } from "../Repositories/UserAccountDynamoRepository";
 import { LightSailService } from "../Services/LightSailService";
 import { uuidv4 } from "../Utils/MyGuid";
+import { sleep } from "../Utils/Sleep";
 const {Request : Req, Response: Res} = require('express')
 
 export class LightSailContorller {
@@ -28,21 +28,25 @@ export class LightSailContorller {
         }
         await this.lsService.createInstance(new_instance)
         .then(async ()=> {
+            await this.lsService.createDisk(new_disk)
+        }).then(async ()=>{
+            // await this.lsService.attachDisk(new_disk.name,new_instance.name)
+            console.log("Attach Disk?")
+        }).finally(async () =>{
             await this.instanceRepo.addInstance(new_instance)
-        })
-
-        await this.lsService.createDisk(new_disk)
-        .then(async ()=>{
             await this.diskRepo.addDisk(new_disk)
+            await this.userRepo.addUser({
+                id: uuidv4(),
+                username: `BIOL-${new_instance.name}`,
+                assigned_instance: new_instance.id,
+                assigned_disk: new_disk.id
+            })
         })
-
-        await this.userRepo.addUser({
-            id: uuidv4(),
-            username: `BIOL-${new_instance.name}`,
-            assigned_instance: new_instance.id,
-            assigned_disk: new_disk.id
+        
+        res.send({
+            new_instance,
+            new_disk
         })
-          
-        res.send(new_instance)
-    } 
+    }
+    
 }

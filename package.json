@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsc && node ./Out/index.js"
+    "build": "tsc",
+    "start": "node ./Out/index.js",
+    "dev": "npm run build && npm run start"
   },
   "author": "",
   "license": "ISC",
@@ -12,7 +14,8 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.583.0",
     "@aws-sdk/client-lightsail": "^3.588.0",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "njwt": "^2.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.21"

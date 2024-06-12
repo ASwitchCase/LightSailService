@@ -10,7 +10,7 @@ export class RouteBuilder {
     constructor(){
         this.router = express.Router()
     }
-
+    
     AddRoute(routeAdjuster:Func<RouteBuilder,RouteBuilder>){
         return routeAdjuster(this)
     }
