@@ -3,12 +3,13 @@ import { RouteBuilder } from "./src/Utils/RouteBuilder";
 import { mapUserRoutes } from './src/Routes/Api/UserRoute';
 import { mapDiskRoutes } from './src/Routes/Api/DiskRoute';
 import { mapInstanceRoutes } from './src/Routes/Api/InstanceRoute';
-import { verifyToken } from './src/Middleware/Auth';
 import { mapAuthRoutes } from './src/Routes/Api/AuthRoute';
+import { ipFilter } from './src/Middleware/IpFilter';
 
 const app = express()
 
 app.use(express.json())
+app.use(ipFilter)
 
 // Build api endpoints
 const builder = new RouteBuilder()

@@ -26,23 +26,21 @@ export class LightSailContorller {
             name:`${new_instance.name}-disk`,
             ...req.body.disk
         }
-        await this.lsService.createInstance(new_instance)
-        .then(async ()=> {
-            await this.lsService.createDisk(new_disk)
-        }).then(async ()=>{
-            // await this.lsService.attachDisk(new_disk.name,new_instance.name)
-            console.log("Attach Disk?")
-        }).finally(async () =>{
-            await this.instanceRepo.addInstance(new_instance)
-            await this.diskRepo.addDisk(new_disk)
-            await this.userRepo.addUser({
+        //await this.lsService.createInstance(new_instance)
+        await this.lsService.createDisk(new_disk)
+        await this.lsService.waitForInstanceRunning(new_instance.name)
+        await this.lsService.attachDisk(new_disk.name,new_instance.name)
+        
+           
+        await this.instanceRepo.addInstance(new_instance)
+        await this.diskRepo.addDisk(new_disk)
+        await this.userRepo.addUser({
                 id: uuidv4(),
                 username: `BIOL-${new_instance.name}`,
                 assigned_instance: new_instance.id,
                 assigned_disk: new_disk.id
-            })
         })
-        
+
         res.send({
             new_instance,
             new_disk
