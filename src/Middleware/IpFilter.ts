@@ -6,6 +6,6 @@ export function ipFilter(req : typeof Req, res : typeof Res, next : typeof NextF
     if(whiteList.includes(req.connection.remoteAddress)){
         next()
     } else {
-        next(new Error("Unautharized IP: " + req.connection.remoteAddress))
+        res.sendStatus(403)
     } 
 }

@@ -9,7 +9,7 @@ import { ipFilter } from './src/Middleware/IpFilter';
 const app = express()
 
 app.use(express.json())
-app.use(ipFilter)
+//app.use(ipFilter)
 
 // Build api endpoints
 const builder = new RouteBuilder()

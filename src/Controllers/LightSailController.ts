@@ -1,5 +1,6 @@
 import { DiskModel } from "../Models/DiskModel";
 import { InstanceModel } from "../Models/InstanceModel";
+import { UserAccountModel } from "../Models/UserAccountModel";
 import { IDiskRepository } from "../Repositories/IDiskRepository";
 import { ILSInstanceRepository } from "../Repositories/ILSInstanceRepository";
 import { IUserAccountRepository } from "../Repositories/IUserAccountRepository";
@@ -26,24 +27,28 @@ export class LightSailContorller {
             name:`${new_instance.name}-disk`,
             ...req.body.disk
         }
-        //await this.lsService.createInstance(new_instance)
+        const new_user : UserAccountModel ={
+            id: uuidv4(),
+            username: `BIOL-${new_instance.name}`,
+            assigned_instance: new_instance.id,
+            assigned_disk: new_disk.id
+        }
+
+        // Create Resources
         await this.lsService.createDisk(new_disk)
-        await this.lsService.waitForInstanceRunning(new_instance.name)
+        await this.lsService.createInstanceAndWait(new_instance)
         await this.lsService.attachDisk(new_disk.name,new_instance.name)
         
-           
+        // Store Information
         await this.instanceRepo.addInstance(new_instance)
         await this.diskRepo.addDisk(new_disk)
-        await this.userRepo.addUser({
-                id: uuidv4(),
-                username: `BIOL-${new_instance.name}`,
-                assigned_instance: new_instance.id,
-                assigned_disk: new_disk.id
-        })
+        await this.userRepo.addUser(new_user)
+        
 
         res.send({
             new_instance,
-            new_disk
+            new_disk,
+            new_user
         })
     }
     

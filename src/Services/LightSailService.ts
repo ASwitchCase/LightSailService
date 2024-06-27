@@ -34,6 +34,25 @@ export class LightSailService {
         return await this.client.send(command)
     }
 
+    async createInstanceAndWait(instance : InstanceModel){
+
+        await this.createInstance(instance)
+
+        return new Promise(async (resolve,reject) =>{
+            const command = new GetInstanceCommand({instanceName:instance.name})
+            let trys = 0
+
+            while(await this.checkInstanceStatus(instance.name) !== 'running'){
+                trys += 1
+                console.log(this.checkInstanceStatus(instance.name))
+                sleep(5000)
+                if(trys === 6) break
+            }
+            if(trys === 6) reject()
+            resolve("worked")
+        })
+    }
+
     /**
      * 
      * @param disk 
@@ -67,20 +86,18 @@ export class LightSailService {
         
     }
 
-    async waitForInstanceRunning(name : string){
+    async checkInstanceStatus(name : string){
         const command = new GetInstanceCommand({
             instanceName:name
         })
+        let status;
 
-        while(true){
-            const res = await this.client.send(command)
-                .then(data =>{
-                    console.log(data.instance?.state?.name)
-                    if(data.instance?.state?.name === "running"){
-                        return
-                    }
-                })
-            sleep(10000)
-        }
+        await this.client.send(command)
+            .then(data =>{
+                status = data.instance?.state?.name
+            })
+        
+        return status
+        
     }
 }
