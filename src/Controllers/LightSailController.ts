@@ -51,5 +51,9 @@ export class LightSailContorller {
             new_user
         })
     }
+
+    async DeleteInstance(req : typeof Req, res : typeof Res){
+        throw new Error("Not Implemented")
+    }
     
 }

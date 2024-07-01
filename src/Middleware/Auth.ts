@@ -29,9 +29,9 @@ export async function createJWT(req : typeof Req,res : typeof Res){
     const jwt = require('njwt')
     const claims = { createdAt:String(new Date()), sub: 'flyLightSial' }
     const token = jwt.create(claims, 'top-secret-phrase')
-    token.setExpiration(new Date().getTime() + 60*1000)
+    token.setExpiration(new Date().getTime() + 86400*1000)
 
-    console.log(await verifyAdminUser(req.body.username,req.body.password))
+    await verifyAdminUser(req.body.username,req.body.password)
 
     res.send(token.compact())
 }

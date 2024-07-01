@@ -4,7 +4,6 @@ import { mapUserRoutes } from './src/Routes/Api/UserRoute';
 import { mapDiskRoutes } from './src/Routes/Api/DiskRoute';
 import { mapInstanceRoutes } from './src/Routes/Api/InstanceRoute';
 import { mapAuthRoutes } from './src/Routes/Api/AuthRoute';
-import { ipFilter } from './src/Middleware/IpFilter';
 
 const app = express()
 
@@ -21,7 +20,12 @@ const builder = new RouteBuilder()
 // Initailize routes
 app.use('/',builder.router)
 
-// Start Server
+// Start Server TEST
 app.listen(3000,() =>{
     console.log('listening...')
 })
+
+/**
+ * PROD
+ * module.exports.handler = serverless(app)
+ */

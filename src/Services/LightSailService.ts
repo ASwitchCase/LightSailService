@@ -39,9 +39,7 @@ export class LightSailService {
         await this.createInstance(instance)
 
         return new Promise(async (resolve,reject) =>{
-            const command = new GetInstanceCommand({instanceName:instance.name})
             let trys = 0
-
             while(await this.checkInstanceStatus(instance.name) !== 'running'){
                 trys += 1
                 console.log(this.checkInstanceStatus(instance.name))
@@ -79,7 +77,8 @@ export class LightSailService {
         const command = new AttachDiskCommand({
             diskName:diskName,
             diskPath:"/dev/xvdf",
-            instanceName:instanceName
+            instanceName:instanceName,
+            autoMounting: true
         })
 
         await this.client.send(command)
