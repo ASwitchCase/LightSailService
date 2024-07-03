@@ -15,7 +15,8 @@
     "@aws-sdk/client-dynamodb": "^3.583.0",
     "@aws-sdk/client-lightsail": "^3.588.0",
     "express": "^4.19.2",
-    "njwt": "^2.0.1"
+    "njwt": "^2.0.1",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21"

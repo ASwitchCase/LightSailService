@@ -1,3 +1,4 @@
+import { NextFunction } from "express";
 import { DiskModel } from "../Models/DiskModel";
 import { InstanceModel } from "../Models/InstanceModel";
 import { UserAccountModel } from "../Models/UserAccountModel";
@@ -33,16 +34,17 @@ export class LightSailContorller {
             assigned_instance: new_instance.id,
             assigned_disk: new_disk.id
         }
-
+        
         // Create Resources
-        await this.lsService.createDisk(new_disk)
+        await this.lsService.createDiskAndWait(new_disk)
         await this.lsService.createInstanceAndWait(new_instance)
         await this.lsService.attachDisk(new_disk.name,new_instance.name)
-        
+            
         // Store Information
         await this.instanceRepo.addInstance(new_instance)
         await this.diskRepo.addDisk(new_disk)
         await this.userRepo.addUser(new_user)
+       
         
 
         res.send({

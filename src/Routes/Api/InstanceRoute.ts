@@ -8,7 +8,7 @@ const instanceController : LSInstanceController = Controllers.DynamoDbInstanceCo
 const lsController : LightSailContorller = Controllers.LSContorller
 
 export function mapInstanceRoutes(builder: RouteBuilder) : RouteBuilder {
-    builder.router.post('/instances',verifyToken, async (req,res) => lsController.CreateInstance(req,res))
+    builder.router.post('/instances',verifyToken, async (req,res) => await lsController.CreateInstance(req,res))
     builder.router.get('/instances',verifyToken,async (req,res) => await instanceController.GetAll(req,res))
     builder.router.get('/instances/:id',verifyToken,async (req,res) => await instanceController.GetOne(req,res))
     return builder

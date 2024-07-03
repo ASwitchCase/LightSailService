@@ -31,9 +31,11 @@ export async function createJWT(req : typeof Req,res : typeof Res){
     const token = jwt.create(claims, 'top-secret-phrase')
     token.setExpiration(new Date().getTime() + 86400*1000)
 
-    await verifyAdminUser(req.body.username,req.body.password)
-
-    res.send(token.compact())
+    if(await verifyAdminUser(req.body.username,req.body.password)){ 
+        res.send(token.compact()) 
+    } else { 
+        res.sendStatus(401) 
+    }
 }
 
 async function verifyAdminUser(username: string, password : string) : Promise<boolean>{
@@ -45,17 +47,18 @@ async function verifyAdminUser(username: string, password : string) : Promise<bo
 
     // Get Admin Users
     scan.Items?.forEach(item =>{
-        res.push({
-            id : item?.id.S!,
-            username : item?.username.S!,
-            password : item?.password.S!
-        })
+        if(item?.username.S === username && item?.password.S === password){
+            res.push({
+                id : item?.id.S!,
+                username : item?.username.S!,
+                password : item?.password.S!
+            })
+        }
+   
     })
 
-    // Check if username and password match any user
-    res.forEach(item => {
-        if(item.username === username && item.password === password) return true
-    })
+    console.log(res)
+    if(res.length > 0) return true
 
     return false
 }
