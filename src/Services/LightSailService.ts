@@ -1,4 +1,4 @@
-import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState, GetDiskCommand, DiskState } from "@aws-sdk/client-lightsail"; // ES Modules import
+import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState, GetDiskCommand, DiskState, DeleteAlarmCommand, DeleteInstanceCommand, DeleteDiskCommand } from "@aws-sdk/client-lightsail"; // ES Modules import
 import { InstanceModel } from "../Models/InstanceModel";
 import { SETTINGS } from "../Utils/Tools";
 import { DiskModel } from "../Models/DiskModel";
@@ -12,6 +12,7 @@ export class LightSailService {
      * @param instance 
      * @param name 
      * @returns Command Output
+     * TODO: Add auto snapshots
      */
     async createInstance(instance : InstanceModel) : Promise<CreateInstancesCommandOutput> {
         const command = new CreateInstancesCommand({
@@ -27,6 +28,12 @@ export class LightSailService {
                         threshold: "10"
                     }
                },
+               {
+                    addOnType:"AutoSnapshot",
+                    autoSnapshotAddOnRequest:{
+                        snapshotTimeOfDay:"05:00"
+                    }
+               }
                
             ]
         })
@@ -42,11 +49,15 @@ export class LightSailService {
             let trys = 0
             while(await this.checkInstanceStatus(instance.name) !== 'running'){
                 trys += 1
-                console.log(this.checkInstanceStatus(instance.name))
+                console.log(`Creating instance ${instance.name}...`)
                 sleep(5000)
                 if(trys === 6) break
             }
-            if(trys === 6) reject()
+            if(trys === 6){
+                console.log(`Failed to create instance ${instance.name}`)
+                reject()
+            }
+            console.log(`Instance ${instance.name} created`)
             resolve("worked")
         })
     }
@@ -59,11 +70,15 @@ export class LightSailService {
             let trys = 0
             while(await this.checkDiskStatus(disk.name) !== DiskState.Available){
                 trys += 1
-                console.log(this.checkDiskStatus(disk.name))
+                console.log(`Creating disk ${disk.name}...`)
                 sleep(5000)
                 if(trys === 6) break
             }
-            if(trys === 6) reject()
+            if(trys === 6){
+                console.log(`Failed to create disk ${disk.name}`)
+                reject()
+            }
+            console.log(`Disk ${disk.name} created`)
             resolve("worked")
         })
     }
@@ -77,7 +92,16 @@ export class LightSailService {
         const command = new CreateDiskCommand({
             diskName:disk.name,
             availabilityZone:disk.availability_zone,
-            sizeInGb:disk.block_size
+            sizeInGb:disk.block_size,
+            addOns:[
+                {
+                     addOnType:"AutoSnapshot",
+                     autoSnapshotAddOnRequest:{
+                         snapshotTimeOfDay:"05:00"
+                     }
+                },
+                
+            ]
         })
 
         const res = await this.client.send(command)
@@ -98,6 +122,7 @@ export class LightSailService {
             autoMounting: true
         })
 
+        console.log(`Attached disk ${diskName} to instance ${instanceName}`)
         await this.client.send(command)
         
     }
@@ -130,5 +155,22 @@ export class LightSailService {
         
         return status
         
+    }
+
+    async DeleteInstance(name : string){
+        const command = new DeleteInstanceCommand({
+            instanceName:name,
+            forceDeleteAddOns: true
+        })
+
+        await this.client.send(command)
+    }
+    async DeleteDisk(name : string){
+        const command = new DeleteDiskCommand({
+            diskName:name,
+            forceDeleteAddOns:true
+        })
+
+        await this.client.send(command)
     }
 }

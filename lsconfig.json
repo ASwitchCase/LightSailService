@@ -1,0 +1,12 @@
+{
+    "new_users":["Bkerman","vkermen","jkerman"],
+    "instance": {
+        "zone": "us-east-2a",
+        "bundle_id": "app_standard_xl_1_0",
+        "blueprint_id": "lfr_rstudio_1_0"
+    },
+    "disk": {
+        "availability_zone": "us-east-2a",
+        "block_size": 20
+    }
+}

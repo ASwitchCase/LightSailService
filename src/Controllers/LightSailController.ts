@@ -40,13 +40,11 @@ export class LightSailContorller {
         await this.lsService.createInstanceAndWait(new_instance)
         await this.lsService.attachDisk(new_disk.name,new_instance.name)
             
-        // Store Information
+        // Update Information
         await this.instanceRepo.addInstance(new_instance)
         await this.diskRepo.addDisk(new_disk)
         await this.userRepo.addUser(new_user)
        
-        
-
         res.send({
             new_instance,
             new_disk,
@@ -55,7 +53,43 @@ export class LightSailContorller {
     }
 
     async DeleteInstance(req : typeof Req, res : typeof Res){
-        throw new Error("Not Implemented")
+        const instances = await this.instanceRepo.getAllInstances()
+        const users = await this.userRepo.getAllUsers()
+        
+        instances.forEach(async (instance) =>{
+            if(instance.id === req.params.id){
+                await this.lsService.DeleteInstance(instance.name)
+                await this.instanceRepo.deleteInstance(instance.id)
+                users.forEach(async (user) =>{
+                    if(user.assigned_instance === instance.id){
+                        user.assigned_instance = ""
+                        await this.userRepo.updateUser(user.id,user)
+                    }
+                })
+            }
+        })
+        res.send("Disk Deleted")
+        
+    }
+
+    async DeleteDisk(req : typeof Req, res : typeof Res){
+        const disks = await this.diskRepo.getAllDisks()
+        const users = await this.userRepo.getAllUsers()
+
+        disks.forEach(async (disk) =>{
+            if(disk.id === req.params.id){
+                await this.lsService.DeleteDisk(disk.name)
+                await this.diskRepo.deleteDisk(disk.id)
+                users.forEach(async (user) =>{
+                    if(user.assigned_disk === disk.id){
+                        user.assigned_disk = ""
+                        await this.userRepo.updateUser(user.id,user)
+                    }
+                })
+            }
+        })
+        res.send("Instance Deleted")
+
     }
     
 }

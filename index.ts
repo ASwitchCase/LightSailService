@@ -27,6 +27,7 @@ app.use('/',builder.router)
     //console.log('listening...')
 //})
 
+app.use(ErrorHandler)
 
 module.exports.handler = serverless(app)
 

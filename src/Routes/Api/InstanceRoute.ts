@@ -11,5 +11,6 @@ export function mapInstanceRoutes(builder: RouteBuilder) : RouteBuilder {
     builder.router.post('/instances',verifyToken, async (req,res) => await lsController.CreateInstance(req,res))
     builder.router.get('/instances',verifyToken,async (req,res) => await instanceController.GetAll(req,res))
     builder.router.get('/instances/:id',verifyToken,async (req,res) => await instanceController.GetOne(req,res))
+    builder.router.delete('/instances/:id',verifyToken,async (req,res) => await lsController.DeleteInstance(req,res))
     return builder
 }
