@@ -8,6 +8,7 @@ import { DynamoDB } from "@aws-sdk/client-dynamodb";
 import { UserAccountDynamoRepository } from "./src/Repositories/UserAccountDynamoRepository";
 import { DiskDynamoRepository } from "./src/Repositories/DiskDynamoRepository";
 import { UserAccountModel } from "./src/Models/UserAccountModel";
+import { SETTINGS } from "./src/Utils/Tools";
 
 (async () => {
     let lsService : LightSailService = new LightSailService(new LightsailClient({region:"us-east-2"}))
@@ -21,12 +22,12 @@ import { UserAccountModel } from "./src/Models/UserAccountModel";
     config.new_users.forEach( async (user: any) => {
         const new_instance : InstanceModel = {
             id:uuidv4(),
-            name:`${user}-instance`,
+            name:`${user}-${SETTINGS.courseName}`,
             ...config.instance
         }
         const new_disk : DiskModel ={
             id:uuidv4(),
-            name:`${user}-disk`,
+            name:`${user}-${SETTINGS.courseName}-data`,
             ...config.disk
         }
         const new_user : UserAccountModel ={

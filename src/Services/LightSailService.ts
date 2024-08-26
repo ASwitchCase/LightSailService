@@ -1,4 +1,4 @@
-import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState, GetDiskCommand, DiskState, DeleteAlarmCommand, DeleteInstanceCommand, DeleteDiskCommand } from "@aws-sdk/client-lightsail"; // ES Modules import
+import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState, GetDiskCommand, DiskState, DeleteAlarmCommand, DeleteInstanceCommand, DeleteDiskCommand, CloseInstancePublicPortsCommand, CreateInstancesFromSnapshotCommand } from "@aws-sdk/client-lightsail"; // ES Modules import
 import { InstanceModel } from "../Models/InstanceModel";
 import { SETTINGS } from "../Utils/Tools";
 import { DiskModel } from "../Models/DiskModel";
@@ -20,12 +20,18 @@ export class LightSailService {
             availabilityZone: instance.zone,
             bundleId:instance.bundle_id,
             blueprintId:instance.blueprint_id,
+            tags:[
+                {
+                    key:'shu:username',
+                    value:instance.name
+                }
+            ],
             addOns:[
                {
                     addOnType: "StopInstanceOnIdle",
                     stopInstanceOnIdleRequest: {
-                        duration: "15",
-                        threshold: "10"
+                        duration: "20",
+                        threshold: "5"
                     }
                },
                {
@@ -57,9 +63,74 @@ export class LightSailService {
                 console.log(`Failed to create instance ${instance.name}`)
                 reject()
             }
+            this.closeInstancePorts(instance.name)
             console.log(`Instance ${instance.name} created`)
             resolve("worked")
         })
+    }
+
+    async createInstanceFromSnapShot(snapshot_name : string,instance : InstanceModel){
+        const command = new CreateInstancesFromSnapshotCommand({
+            instanceNames:[instance.name],
+            availabilityZone:instance.zone,
+            bundleId:instance.bundle_id,
+            tags:[
+                {
+                    key:'shu:username',
+                    value:instance.name
+                }
+            ],
+            addOns:[
+               {
+                    addOnType: "StopInstanceOnIdle",
+                    stopInstanceOnIdleRequest: {
+                        duration: "20",
+                        threshold: "5"
+                    }
+               },
+               {
+                    addOnType:"AutoSnapshot",
+                    autoSnapshotAddOnRequest:{
+                        snapshotTimeOfDay:"05:00"
+                    }
+               }
+            ]
+        }) 
+    }
+
+    async createInstanceFromSnapshotAndWait(snapshot_name:string,instance: InstanceModel){
+        await this.createInstanceFromSnapShot(snapshot_name,instance)
+
+        return new Promise(async (resolve,reject) =>{
+            let trys = 0
+            while(await this.checkInstanceStatus(instance.name) !== 'running'){
+                trys += 1
+                console.log(`Creating instance ${instance.name}...`)
+                sleep(5000)
+                if(trys === 6) break
+            }
+            if(trys === 6){
+                console.log(`Failed to create instance ${instance.name}`)
+                reject()
+            }
+            this.closeInstancePorts(instance.name)
+            console.log(`Instance ${instance.name} created`)
+            resolve("worked")
+        })
+    }
+
+    async closeInstancePorts(name:string){
+        const command = new CloseInstancePublicPortsCommand({
+            instanceName:name,
+            portInfo:{
+                cidrs:["0.0.0.0/0"],
+                fromPort:22,
+                protocol:"tcp",
+                toPort:22
+            }
+        })
+        const res = await this.client.send(command)
+        return res
     }
 
     async createDiskAndWait(disk : DiskModel){

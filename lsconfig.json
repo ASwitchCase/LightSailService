@@ -1,5 +1,5 @@
 {
-    "new_users":["Bkerman","vkermen","jkerman"],
+    "new_users":["jDoe","JanDoe"],
     "instance": {
         "zone": "us-east-2a",
         "bundle_id": "app_standard_xl_1_0",

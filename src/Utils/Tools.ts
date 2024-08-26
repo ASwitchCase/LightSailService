@@ -29,6 +29,7 @@ export const SETTINGS = {
         autoSnapShot : AutoSnapshot,
         costControlRules : CostContorlRules
     },
+    courseName:"BIOL7112NA-202410",
 
     GetInstanceTags(username: string) : Tag[]{
         return [
