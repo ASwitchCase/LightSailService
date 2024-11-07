@@ -19,7 +19,10 @@ export function mapServiceRequestRoutes(builder: RouteBuilder) : RouteBuilder {
             await lsController.CreateManyInstances(req,res)
         }
         else if(req.body.request_type === 'CREATE_MANY_INSTANCES_FROM_SNAP'){
-            // implement
+            await lsController.CreateInstancesFromSnap(req,res)
+        }
+        else if(req.body.request_type === 'ATTACH_COURSE_MATERIALS_DISK'){
+            await lsController.AttachCourseMaterialsDisk(req,res)
         }
     })
     return builder

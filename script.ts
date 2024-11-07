@@ -40,7 +40,7 @@ import { SETTINGS } from "./src/Utils/Tools";
     
         await lsService.createDiskAndWait(new_disk)
         await lsService.createInstanceAndWait(new_instance)
-        await lsService.attachDisk(new_disk.name,new_instance.name)
+        await lsService.attachDisk(new_disk.name,new_instance.name,SETTINGS.dataDiskPath)
 
         await instanceRepo.addInstance(new_instance)
         await diskRepo.addDisk(new_disk)

@@ -30,6 +30,8 @@ export const SETTINGS = {
         costControlRules : CostContorlRules
     },
     courseName:"BIOL7112NA-202410",
+    dataDiskPath:"/dev/xvdf",
+    courseMaterialsDiskPath:"/dev/xvdg",
 
     GetInstanceTags(username: string) : Tag[]{
         return [

@@ -40,7 +40,7 @@ export class LightSailContorller {
         // Create Resources
         await this.lsService.createDiskAndWait(new_disk)
         await this.lsService.createInstanceAndWait(new_instance)
-        await this.lsService.attachDisk(new_disk.name,new_instance.name)
+        await this.lsService.attachDisk(new_disk.name,new_instance.name,SETTINGS.dataDiskPath)
             
         // Update Information
         await this.instanceRepo.addInstance(new_instance)
@@ -74,7 +74,51 @@ export class LightSailContorller {
         
     }
 
+    async AttachCourseMaterialsDisk(req : typeof Req, res : typeof Res){
+        let results : any[] = []
+
+        req.body.target_users.forEach(async (user:any) => {
+            const new_disk : DiskModel ={
+                id:uuidv4(),
+                name:`${user}-${SETTINGS.courseName}-course-materials`,
+                ...req.body.disk
+            }
+
+            await this.lsService.createDiskFromSnapshotAndWait(req.body.snapshot_name,new_disk)
+            await this.lsService.attachDisk(new_disk.name,`${user}-${SETTINGS.courseName}`,SETTINGS.courseMaterialsDiskPath)
+
+            results.push(new_disk)
+        })
+        res.send({
+            results
+        })
+    }
+
+    async CreateInstancesFromSnap(req : typeof Req, res : typeof Res){
+        let results : any[] = []
+
+        req.body.new_users.forEach( async (user: any) => {
+            const new_instance : InstanceModel = {
+                id:uuidv4(),
+                name:`${user}-${SETTINGS.courseName}`,
+                ...req.body.instance
+            }
+            
+            await this.lsService.createInstanceFromSnapshotAndWait(req.body.snapshot_name,{name:new_instance.name,zone:new_instance.zone,bundle_id:new_instance.bundle_id})
+    
+            console.log(`Process for ${user} completed!`)
+            results.push({
+                new_instance
+            })
+        });
+
+        res.send({
+            results
+        })
+    }
+
     async CreateManyInstances(req : typeof Req, res : typeof Res){
+        let results : any[] = []
         req.body.new_users.forEach( async (user: any) => {
             const new_instance : InstanceModel = {
                 id:uuidv4(),
@@ -96,20 +140,20 @@ export class LightSailContorller {
         
             await this.lsService.createDiskAndWait(new_disk)
             await this.lsService.createInstanceAndWait(new_instance)
-            await this.lsService.attachDisk(new_disk.name,new_instance.name)
+            await this.lsService.attachDisk(new_disk.name,new_instance.name,SETTINGS.dataDiskPath)
     
             await this.instanceRepo.addInstance(new_instance)
             await this.diskRepo.addDisk(new_disk)
             await this.userRepo.addUser(new_user)
     
             console.log(`Process for ${user} completed!`)
-
-            res.send({
+            results.push({
                 new_instance,
                 new_disk,
                 new_user
             })
         });
+        res.send(results)
     }
 
     async DeleteDisk(req : typeof Req, res : typeof Res){

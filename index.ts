@@ -1,3 +1,4 @@
+require('dotenv').config()
 import express from 'express'
 import { RouteBuilder } from "./src/Utils/RouteBuilder";
 import { mapUserRoutes } from './src/Routes/Api/UserRoute';
@@ -11,8 +12,9 @@ const serverless = require("serverless-http")
 const app = express()
 
 app.use(express.json())
-//app.use(ipFilter)
-
+if(process.env.DEVELOPMENT_STAGE === 'PROD'){
+    app.use(ipFilter)
+}
 // Build api endpoints
 const builder = new RouteBuilder()
     .AddRoute((b) => mapDiskRoutes(b))
@@ -25,11 +27,15 @@ const builder = new RouteBuilder()
 app.use('/',builder.router)
 
 // Start Server TEST
-app.listen(3000,() =>{
-    console.log('listening...')
-})
+if(process.env.DEVELOPMENT_STAGE === 'TEST'){
+    app.listen(3000,() =>{
+        console.log('listening...')
+    })
+}else if(process.env.DEVELOPMENT_STAGE === 'PROD'){
+    app.use(ErrorHandler)
+    module.exports.handler = serverless(app)
+}
 
-//app.use(ErrorHandler)
 
-//module.exports.handler = serverless(app)
+
 

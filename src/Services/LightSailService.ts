@@ -1,4 +1,4 @@
-import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState, GetDiskCommand, DiskState, DeleteAlarmCommand, DeleteInstanceCommand, DeleteDiskCommand, CloseInstancePublicPortsCommand, CreateInstancesFromSnapshotCommand } from "@aws-sdk/client-lightsail"; // ES Modules import
+import { LightsailClient, CreateInstancesCommand, CreateInstancesCommandOutput, CreateDiskCommandOutput, CreateDiskCommand, AttachDiskCommand, AttachDiskCommandOutput, GetOperationCommand, GetInstanceCommand, InstanceState, GetDiskCommand, DiskState, DeleteAlarmCommand, DeleteInstanceCommand, DeleteDiskCommand, CloseInstancePublicPortsCommand, CreateInstancesFromSnapshotCommand, CreateDiskFromSnapshotCommand } from "@aws-sdk/client-lightsail"; // ES Modules import
 import { InstanceModel } from "../Models/InstanceModel";
 import { SETTINGS } from "../Utils/Tools";
 import { DiskModel } from "../Models/DiskModel";
@@ -69,11 +69,12 @@ export class LightSailService {
         })
     }
 
-    async createInstanceFromSnapShot(snapshot_name : string,instance : InstanceModel){
+    async createInstanceFromSnapShot(snapshot_name : string,instance : {name:string,zone:string,bundle_id:string}){
         const command = new CreateInstancesFromSnapshotCommand({
             instanceNames:[instance.name],
             availabilityZone:instance.zone,
             bundleId:instance.bundle_id,
+            instanceSnapshotName:snapshot_name,
             tags:[
                 {
                     key:'shu:username',
@@ -96,9 +97,12 @@ export class LightSailService {
                }
             ]
         }) 
+
+        const res = await this.client.send(command)
+        return res
     }
 
-    async createInstanceFromSnapshotAndWait(snapshot_name:string,instance: InstanceModel){
+    async createInstanceFromSnapshotAndWait(snapshot_name : string,instance : {name:string,zone:string,bundle_id:string}){
         await this.createInstanceFromSnapShot(snapshot_name,instance)
 
         return new Promise(async (resolve,reject) =>{
@@ -117,6 +121,52 @@ export class LightSailService {
             console.log(`Instance ${instance.name} created`)
             resolve("worked")
         })
+    }
+
+    async createDiskFromSnapshotAndWait(snapshot_name:string, disk: DiskModel){
+        await this.createDiskFromSnapshot(snapshot_name,disk)
+
+        return new Promise(async (resolve,reject) =>{
+            let trys = 0
+            while(await this.checkDiskStatus(disk.name) !== DiskState.Available){
+                trys += 1
+                console.log(`Creating disk ${disk.name}...`)
+                sleep(5000)
+                if(trys === 6) break
+            }
+            if(trys === 6){
+                console.log(`Failed to create disk ${disk.name}`)
+                reject()
+            }
+            console.log(`Disk ${disk.name} created`)
+            resolve("worked")
+        })
+    }
+
+    async createDiskFromSnapshot(snapshot_name:string, disk: DiskModel){
+        const command = new CreateDiskFromSnapshotCommand({
+            diskName:disk.name,
+            diskSnapshotName:snapshot_name,
+            availabilityZone:disk.availability_zone,
+            sizeInGb:disk.block_size,
+            tags:[
+                {
+                    key:'shu:username',
+                    value:disk.name
+                }
+            ],
+            addOns:[
+                {
+                     addOnType:"AutoSnapshot",
+                     autoSnapshotAddOnRequest:{
+                         snapshotTimeOfDay:"05:00"
+                     }
+                },
+                
+            ]
+        })
+
+        return await this.client.send(command)
     }
 
     async closeInstancePorts(name:string){
@@ -185,10 +235,10 @@ export class LightSailService {
      * @param instanceName 
      * @returns Command Output
      */
-    async attachDisk(diskName : string, instanceName : string) : Promise<void>{
+    async attachDisk(diskName : string, instanceName : string,path:string) : Promise<void>{
         const command = new AttachDiskCommand({
             diskName:diskName,
-            diskPath:"/dev/xvdf",
+            diskPath:path,
             instanceName:instanceName,
             autoMounting: true
         })
