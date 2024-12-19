@@ -17,11 +17,7 @@ import { SETTINGS } from "./src/Utils/Tools";
     let diskRepo : DiskDynamoRepository = new DiskDynamoRepository(new DynamoDB({region:"us-east-1"}))
 
     console.log("Loading Config...")
-    let config : any = require('./lsconfig.json')
-    if(process.env.DEVELOPMENT_STAGE === 'PROD'){
-        config = require('../lsconfig.json')
-    }
-    
+    let config : any = require('../lsconfig.json')
 
     config.new_users.forEach( async (user: any) => {
         const new_instance : InstanceModel = {
