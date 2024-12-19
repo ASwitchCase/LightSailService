@@ -103,9 +103,15 @@ export class LightSailContorller {
                 name:`${user}-${SETTINGS.courseName}`,
                 ...req.body.instance
             }
-            
+            const new_disk : DiskModel ={
+                id:uuidv4(),
+                name:`${user}-${SETTINGS.courseName}-data`,
+                ...req.body.disk
+            }
+            await this.lsService.createDiskAndWait(new_disk)
             await this.lsService.createInstanceFromSnapshotAndWait(req.body.snapshot_name,{name:new_instance.name,zone:new_instance.zone,bundle_id:new_instance.bundle_id})
-    
+            await this.lsService.attachDisk(new_disk.name,new_instance.name,SETTINGS.dataDiskPath);
+            
             console.log(`Process for ${user} completed!`)
             results.push({
                 new_instance

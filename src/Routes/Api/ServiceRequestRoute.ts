@@ -8,7 +8,7 @@ const instanceController : LSInstanceController = Controllers.DynamoDbInstanceCo
 const lsController : LightSailContorller = Controllers.LSContorller
 
 export function mapServiceRequestRoutes(builder: RouteBuilder) : RouteBuilder {
-    builder.router.post('/service-requests', async (req,res) => {
+    builder.router.post('/service-requests', verifyToken,async (req,res) => {
         if(req.body.request_type === 'CREATE_INSTANCE'){
             await lsController.CreateInstance(req,res)
         }
