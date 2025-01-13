@@ -50,12 +50,12 @@ export class LightSailService {
     async createInstanceAndWait(instance : InstanceModel){
 
         await this.createInstance(instance)
-
+        console.log(`Creating instance ${instance.name}...`)
         return new Promise(async (resolve,reject) =>{
             let trys = 0
             while(await this.checkInstanceStatus(instance.name) !== 'running'){
                 trys += 1
-                console.log(`Creating instance ${instance.name}...`)
+                console.log(`...`)
                 sleep(5000)
                 if(trys === 6) break
             }
@@ -104,16 +104,16 @@ export class LightSailService {
 
     async createInstanceFromSnapshotAndWait(snapshot_name : string,instance : {name:string,zone:string,bundle_id:string}){
         await this.createInstanceFromSnapShot(snapshot_name,instance)
-
+        console.log(`Creating instance ${instance.name}...`)
         return new Promise(async (resolve,reject) =>{
             let trys = 0
             while(await this.checkInstanceStatus(instance.name) !== 'running'){
                 trys += 1
-                console.log(`Creating instance ${instance.name}...`)
+                console.log(`...`)
                 sleep(5000)
-                if(trys === 6) break
+                if(trys === 15) break
             }
-            if(trys === 6){
+            if(trys === 15){
                 console.log(`Failed to create instance ${instance.name}`)
                 reject()
             }

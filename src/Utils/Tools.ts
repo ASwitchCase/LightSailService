@@ -29,7 +29,7 @@ export const SETTINGS = {
         autoSnapShot : AutoSnapshot,
         costControlRules : CostContorlRules
     },
-    courseName:"BIOL7112NA-202410",
+    courseName:"-202510-BQUA2811AC",
     dataDiskPath:"/dev/xvdf",
     courseMaterialsDiskPath:"/dev/xvdg",
 

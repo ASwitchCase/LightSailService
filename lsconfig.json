@@ -1,5 +1,6 @@
 {
-    "new_users":["jDoe","JanDoe"],
+    "new_users":["obiwan","Mace"],
+    "snapshot_name":"BQUA-Image-v1-13-2025-1-snapshot",
     "instance": {
         "zone": "us-east-2a",
         "bundle_id": "app_standard_xl_1_0",
